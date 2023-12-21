@@ -21,7 +21,7 @@ This Python script provides text translation and speech-to-text functionality. I
 3. Run the script using the following command:
 
 ```
-python main.py
+python operation.py
 ```
 
 4. Select whether you want to enter text or speak your input.
