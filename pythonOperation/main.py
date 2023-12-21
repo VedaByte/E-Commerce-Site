@@ -1,85 +1,49 @@
-import speech_recognition as sr
-from language import LANGUAGES_TRANSLATE, LANGUAGES_GTTS
-from googletrans import Translator
-from gtts import gTTS
-import pygame
+from fastapi import FastAPI, HTTPException,Query,File,UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from operation import TextOperation,SpeechOperation
 import os
 
+app = FastAPI()
 
-class textOperation():
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    def __init__(self, lang: str | None) -> None:
-        self.lang = lang.lower()
-
-    def translate(self, text: str) -> str:
-        translator = Translator()
-        translation = translator.translate(
-            text=text, dest=LANGUAGES_TRANSLATE[self.lang])
-        return translation.text
-
-    def text2speech(self, text: str) -> None:
-        myobj = gTTS(text=text, lang=LANGUAGES_GTTS[self.lang], slow=False)
-        myobj.save('result.mp3')
-
-    def playAudio(self, file: str) -> None:
-        pygame.mixer.init()
-        pygame.mixer.music.load(file)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
-        pygame.mixer.quit()
-        os.remove(os.path.join('./result.mp3'))
+@app.post('/')
+def rootpage():
+    return 'This Project is made for BHARAT HACKATHON by Team VedaByte'
 
 
-class speechOperation(textOperation):
-
-    def __init__(self, lang: str | None) -> None:
-        super().__init__(lang)
-        self.lang = lang.lower()
-
-    def spech2text(self) -> str:
-        r = sr.Recognizer()
-        with sr.Microphone() as source:
-            print('listening......')
-            r.pause_threshold = 1
-            audio = r.listen(source=source)
-            try:
-                print('recognizing......')
-                query = r.recognize_google(audio, language='en-in')
-                return query
-            except Exception as e:
-                print(e)
-                return 'sorry we cannot understand'
+@app.get('/text/')
+async def text_operation(txt: str = Query(..., title="Text to Translate"),lang: str = Query(..., title="Language Code")):
+    try:
+        model = TextOperation(lang=lang)  
+        output = model.translate(text=txt)
+        model.text2speech(text=output)
+        audio_path = os.path.join('./result.mp3')
+        res= StreamingResponse(open(audio_path, 'rb'), media_type="audio/mp3", headers={"Content-Length": str(os.stat(audio_path).st_size)})
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    return res
 
 
-class operation():
-
-    def __init__(self) -> None:
-        self.txt = ''
-        self.lang = ''
-
-    def startOperation(self) -> None:
-        choice = int(input('ENTER EITHER YOU WANT TO WRITE(0) OR SPEAK(1): '))
-        self.lang = input('ENTER THE LANGUAGE TO OPERATE: ')
-        if (choice):
-            s2t = speechOperation(lang=self.lang)
-            self.txt = s2t.spech2text()
-        else:
-            self.txt = input('ENTER YOUR TEXT: ')
-
-    def operation(self) -> None:
-        t2s = textOperation(lang=self.lang)
-        txt = t2s.translate(text=self.txt)
-        t2s.text2speech(text=txt)
-        t2s.playAudio(file=os.path.join('./result.mp3'))
-
-
-if __name__ == '__main__':
-    
-    opt = operation()
-    while True:
-        opt.startOperation()
-        opt.operation()
-        choice = int(input('ENTER 1 FOR CONTINUE OR 0 FOR END: '))
-        if (not choice):
-            break
+@app.post('/voice/')
+async def voice_operation(audio: UploadFile = File(...), lang: str = Query(..., title="Language Code")):
+    try:
+        model = SpeechOperation(lang=lang)
+        with open(audio.filename, "wb") as file:
+            file.write(audio.file.read())
+        txt = model.audio2text(audio.filename)
+        output = model.translate(text=txt)
+        model.text2speech(text=output)
+        audio_path = os.path.join('./result.mp3')
+        res = StreamingResponse(open(audio_path, 'rb'), media_type="audio/mp3",
+                                headers={"Content-Length": str(os.stat(audio_path).st_size)})
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    return res
