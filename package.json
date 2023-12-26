@@ -1,0 +1,23 @@
+{
+  "name": "e-commerce-site",
+  "version": "1.0.0",
+  "description": "It is a E-Commerce Website by Veda Byte",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VedaByte/E-Commerce-Site.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VedaByte/E-Commerce-Site/issues"
+  },
+  "homepage": "https://github.com/VedaByte/E-Commerce-Site#readme",
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
+    "mp3-to-wav": "^0.1.11"
+  }
+}
