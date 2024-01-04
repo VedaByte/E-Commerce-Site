@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { InputBase, Box, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import MicIcon from "@mui/icons-material/Mic"; 
+import ImageSearchIcon from "@mui/icons-material/ImageSearch"; 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -9,11 +11,8 @@ import { getSearchedProducts } from "../../../redux/userHandle";
 
 const Search = () => {
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
-
   const location = useLocation();
-
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
@@ -36,9 +35,15 @@ const Search = () => {
           }
         }}
       />
-      <SearchIconWrapper>
+     <SearchIconWrapper onClick={handleSearch}>
         <SearchIcon sx={{ color: "#4d1c9c" }} />
-      </SearchIconWrapper>
+     </SearchIconWrapper>
+      <VoiceSearchIconWrapper>
+        <MicIcon sx={{ color: "#4d1c9c" }} />
+      </VoiceSearchIconWrapper>
+      <ImageSearchIconWrapper>
+        <ImageSearchIcon sx={{ color: "#4d1c9c" }} />
+      </ImageSearchIconWrapper>
     </SearchContainer>
   );
 };
@@ -52,7 +57,18 @@ const SearchContainer = styled(Box)`
 `;
 
 const SearchIconWrapper = styled(Box)`
-  margin-left: auto;
+  padding: 5px;
+  display: flex;
+  color: blue;
+`;
+
+const VoiceSearchIconWrapper = styled(Box)`
+  padding: 5px;
+  display: flex;
+  color: blue;
+`;
+
+const ImageSearchIconWrapper = styled(Box)`
   padding: 5px;
   display: flex;
   color: blue;
