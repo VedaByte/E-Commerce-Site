@@ -52,32 +52,45 @@ const Slide = ({ products, title }) => {
             to={`/product/view/${product._id}`}
             style={{ textDecoration: "none" }}
           >
-            <Box textAlign="center" style={{ padding: "25px 15px" }}>
-              <Image src={product.productImage} />
-              <TitleText style={{ fontWeight: 600, color: "#212121" }}>
-                {product.productName}
-              </TitleText>
-              <TextContainer>
-                <Text
-                  style={{ color: "#525050", textDecoration: "line-through" }}
-                >
-                  {product.price.mrp}
+            <ProductBox>
+              <Box textAlign="center" style={{ padding: "25px 15px" }}>
+                <Image src={product.productImage} />
+                <TitleText style={{ fontWeight: 600, color: "#212121" }}>
+                  {product.productName}
+                </TitleText>
+                <TextContainer>
+                  <Text
+                    style={{
+                      color: "#525050",
+                      textDecoration: "line-through",
+                    }}
+                  >
+                    {product.price.mrp}
+                  </Text>
+                  <Text>₹{product.price.cost}</Text>
+                  <Text style={{ color: "green" }}>
+                    {product.price.discountPercent}
+                  </Text>
+                </TextContainer>
+                <Text style={{ color: "#212121", opacity: ".6" }}>
+                  {product.tagline}
                 </Text>
-                <Text>₹{product.price.cost}</Text>
-                <Text style={{ color: "green" }}>
-                  {product.price.discountPercent}
-                </Text>
-              </TextContainer>
-              <Text style={{ color: "#212121", opacity: ".6" }}>
-                {product.tagline}
-              </Text>
-            </Box>
+              </Box>
+            </ProductBox>
           </Link>
         ))}
       </Carousel>
     </Component>
   );
 };
+
+const ProductBox = styled(Box)`
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
 
 export default Slide;
 
