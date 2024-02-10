@@ -18,7 +18,7 @@ mongoose
     console.log("Connected to MongoDB");
   })
   .catch((err) => {
-    console.log("NOT CONNECTED TO NETWORK", err);
+    console.error("Error connecting to MongoDB:", err);
     process.exit(1);
   });
 

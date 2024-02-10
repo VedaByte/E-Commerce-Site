@@ -1,9 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React, { useRef } from "react";
 import { InputBase, Box, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import MicIcon from "@mui/icons-material/Mic"; 
-import ImageSearchIcon from "@mui/icons-material/ImageSearch"; 
+import MicIcon from "@mui/icons-material/Mic";
+import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -14,13 +13,35 @@ const Search = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+  const imageInputRef = useRef(null);
 
-  const handleSearch = () => {
-    dispatch(getSearchedProducts("searchProduct", searchTerm));
+  const handleSearch = async () => {
+    await dispatch(getSearchedProducts("searchProduct", searchTerm));
 
     if (location.pathname !== "/ProductSearch") {
       navigate("/ProductSearch");
     }
+  };
+
+  const handleImageSearch = () => {
+    // Handle image search logic here
+    // You can access the selected file using imageInputRef.current.files
+  };
+
+  const handleImageUpload = () => {
+    imageInputRef.current.click();
+  };
+
+  const handleVoiceSearch = () => {
+    const recognition = new window.webkitSpeechRecognition(); // Use the Web Speech API
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchTerm(transcript);
+      recognition.stop();
+    };
+
+    recognition.start();
   };
 
   return (
@@ -35,13 +56,20 @@ const Search = () => {
           }
         }}
       />
-     <SearchIconWrapper onClick={handleSearch}>
+      <SearchIconWrapper onClick={handleSearch}>
         <SearchIcon sx={{ color: "#4d1c9c" }} />
-     </SearchIconWrapper>
-      <VoiceSearchIconWrapper>
+      </SearchIconWrapper>
+      <VoiceSearchIconWrapper onClick={handleVoiceSearch}>
         <MicIcon sx={{ color: "#4d1c9c" }} />
       </VoiceSearchIconWrapper>
-      <ImageSearchIconWrapper>
+      <ImageSearchIconWrapper onClick={handleImageUpload}>
+        <input
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          ref={imageInputRef}
+          onChange={handleImageSearch}
+        />
         <ImageSearchIcon sx={{ color: "#4d1c9c" }} />
       </ImageSearchIconWrapper>
     </SearchContainer>
